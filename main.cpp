@@ -89,24 +89,46 @@ int createLeafNodes(int freq[]) {
 
 // Step 3: Build the encoding tree using heap operations
 int buildEncodingTree(int nextFree) {
-    // TODO:
-    // 1. Create a MinHeap object.
-    // 2. Push all leaf node indices into the heap.
-    // 3. While the heap size is greater than 1:
-    //    - Pop two smallest nodes
-    //    - Create a new parent node with combined weight
-    //    - Set left/right pointers
-    //    - Push new parent index back into the heap
-    // 4. Return the index of the last remaining node (root)
-    return -1; // placeholder
+    if (nextFree == 0) return -1;
+    if (nextFree == 1) return 0;
+    MinHeap h;
+    for (int i = 0; i < nextFree; ++i) h.push(i);
+    int cur = nextFree;
+    while (h.size > 1) {
+        int a = h.top(); h.pop();
+        int b = h.top(); h.pop();
+        leftArr[cur] = a;
+        rightArr[cur] = b;
+        weightArr[cur] = weightArr[a] + weightArr[b];
+        charArr[cur] = 0;
+        h.push(cur++);
+    }
+    return h.top();
 }
 
 // Step 4: Use an STL stack to generate codes
 void generateCodes(int root, string codes[]) {
-    // TODO:
-    // Use stack<pair<int, string>> to simulate DFS traversal.
-    // Left edge adds '0', right edge adds '1'.
-    // Record code when a leaf node is reached.
+    for (int i = 0; i < 26; ++i) codes[i].clear();
+    if (root == -1) return;
+    if (leftArr[root] == -1 && rightArr[root] == -1) {
+        if (charArr[root] >= 'a' && charArr[root] <= 'z')
+            codes[charArr[root]-'a'] = "0";
+        return;
+    }
+    stack<pair<int,string>> st;
+    st.push({root, ""});
+    while (!st.empty()) {
+        auto cur = st.top(); st.pop();
+        int i = cur.first;
+        if (leftArr[i] == -1 && rightArr[i] == -1) {
+            char c = charArr[i];
+            if (c >= 'a' && c <= 'z')
+                codes[c - 'a'] = cur.second.size() ? cur.second : string("0");
+        } else {
+            if (rightArr[i] != -1) st.push({rightArr[i], cur.second + "1"});
+            if (leftArr[i]  != -1) st.push({leftArr[i],  cur.second + "0"});
+        }
+    }
 }
 
 // Step 5: Print table and encoded message
