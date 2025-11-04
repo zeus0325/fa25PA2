@@ -67,8 +67,6 @@ void buildFrequencyTable(int freq[], const string& filename) {
             freq[ch - 'a']++;
     }
     file.close();
-
-    cout << "Frequency table built successfully.\n";
 }
 
 // Step 2: Create leaf nodes for each character
@@ -83,7 +81,6 @@ int createLeafNodes(int freq[]) {
             nextFree++;
         }
     }
-    cout << "Created " << nextFree << " leaf nodes.\n";
     return nextFree;
 }
 
@@ -115,18 +112,19 @@ void generateCodes(int root, string codes[]) {
             codes[charArr[root]-'a'] = "0";
         return;
     }
-    stack<pair<int,string>> st;
+    struct Frame { int i; string s; };
+    stack<Frame> st;
     st.push({root, ""});
     while (!st.empty()) {
-        auto cur = st.top(); st.pop();
-        int i = cur.first;
+        Frame cur = st.top(); st.pop();
+        int i = cur.i;
         if (leftArr[i] == -1 && rightArr[i] == -1) {
             char c = charArr[i];
             if (c >= 'a' && c <= 'z')
-                codes[c - 'a'] = cur.second.size() ? cur.second : string("0");
+                codes[c - 'a'] = cur.s.size() ? cur.s : string("0");
         } else {
-            if (rightArr[i] != -1) st.push({rightArr[i], cur.second + "1"});
-            if (leftArr[i]  != -1) st.push({leftArr[i],  cur.second + "0"});
+            if (rightArr[i] != -1) st.push({rightArr[i], cur.s + "1"});
+            if (leftArr[i]  != -1) st.push({leftArr[i],  cur.s + "0"});
         }
     }
 }
